@@ -4,6 +4,14 @@ FROM python:3.9-slim
 # Establece el directorio de trabajo dentro del contenedor
 WORKDIR /app
 
+# Instala las herramientas de compilación necesarias
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+    gcc \
+    python3-dev \
+    libpq-dev \
+    && rm -rf /var/lib/apt/lists/*
+
 # Copia los archivos de tu proyecto al contenedor
 COPY . .
 
