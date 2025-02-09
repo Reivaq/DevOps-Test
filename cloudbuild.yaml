@@ -1,0 +1,19 @@
+steps:
+- name: 'python'
+  id: 'Run unit tests'
+  args: ['pip', 'install', 'pytest', '&&', 'pytest']
+
+- name: 'gcr.io/cloud-builders/docker'
+  id: 'Build Docker image'
+  args: ['build', '-t', 'gcr.io/$PROJECT_ID/my-app-image', '.']
+
+- name: 'gcr.io/cloud-builders/docker'
+  id: 'Push Docker image'
+  args: ['push', 'gcr.io/$PROJECT_ID/my-app-image']
+
+- name: 'gcr.io/cloud-builders/kubectl'
+  id: 'Deploy to GKE'
+  args: ['apply', '-f', 'kubernetes/deployment.yaml']
+  env:
+    - 'CLOUDSDK_COMPUTE_ZONE=us-central1-a'
+    - 'CLOUDSDK_CONTAINER_CLUSTER=my-gke-cluster'
