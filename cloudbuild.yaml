@@ -1,19 +1,34 @@
 steps:
-- name: 'python'
-  id: 'Run unit tests'
-  args: ['pip', 'install', 'pytest', '&&', 'pytest']
+  # 1️⃣ Ejecutar pruebas unitarias
+  - name: 'python'
+    entrypoint: 'bash'
+    args:
+      - '-c'
+      - 'pip install pytest && pytest tests/'
 
-- name: 'gcr.io/cloud-builders/docker'
-  id: 'Build Docker image'
-  args: ['build', '-t', 'gcr.io/$PROJECT_ID/my-app-image', '.']
+  # 2️⃣ Construir la imagen Docker
+  - name: 'gcr.io/cloud-builders/docker'
+    args:
+      - 'build'
+      - '-t'
+      - 'us-central1-docker.pkg.dev/devops-engineer-technical-test/my-repo/my-app:latest'
+      - '.'
 
-- name: 'gcr.io/cloud-builders/docker'
-  id: 'Push Docker image'
-  args: ['push', 'gcr.io/$PROJECT_ID/my-app-image']
+  # 3️⃣ Subir la imagen a Artifact Registry
+  - name: 'gcr.io/cloud-builders/docker'
+    args:
+      - 'push'
+      - 'us-central1-docker.pkg.dev/devops-engineer-technical-test/my-repo/my-app:latest'
 
-- name: 'gcr.io/cloud-builders/kubectl'
-  id: 'Deploy to GKE'
-  args: ['apply', '-f', 'kubernetes/deployment.yaml']
-  env:
-    - 'CLOUDSDK_COMPUTE_ZONE=us-central1-a'
-    - 'CLOUDSDK_CONTAINER_CLUSTER=my-gke-cluster'
+  # 4️⃣ Desplegar en GKE
+  - name: 'gcr.io/cloud-builders/kubectl'
+    args:
+      - 'apply'
+      - '-f'
+      - 'deployment.yaml'
+    env:
+      - 'CLOUDSDK_COMPUTE_ZONE=us-central1-a'
+      - 'CLOUDSDK_CONTAINER_CLUSTER=my-cluster'
+
+images:
+  - 'us-central1-docker.pkg.dev/devops-engineer-technical-test/my-repo/my-app:latest'
