@@ -1,25 +1,18 @@
-# Usa una imagen base de Python
-FROM python:3.9-slim
+FROM python:3.11
 
-# Establece el directorio de trabajo dentro del contenedor
+# Establece el directorio de trabajo
 WORKDIR /app
 
-# Instala las herramientas de compilación necesarias
-RUN apt-get update && \
-    apt-get install -y --no-install-recommends \
-    gcc \
-    python3-dev \
-    libpq-dev \
-    && rm -rf /var/lib/apt/lists/*
-
-# Copia los archivos de tu proyecto al contenedor
-COPY . .
-
-# Instala las dependencias
+# Copia el archivo de dependencias e instálalas
+COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Expone el puerto en el que corre tu aplicación (por ejemplo, 5000 para Flask)
-EXPOSE 5000
+# Copia todo el contenido del proyecto al contenedor
+COPY . .
+COPY app.py /app.py
 
-# Comando para ejecutar tu aplicación
-CMD ["python", "app.py"]
+
+# Cambia el punto de entrada para coincidir con la estructura del proyecto
+CMD ["python", "-m", "uvicorn", "/app.py", "--host", "0.0.0.0", "--port", "8000"]
+
+
